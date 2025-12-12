@@ -20,9 +20,8 @@
       <request-details
         [request]="request"
         [doctors]="doctors()"
-        (approve)="onApprove()"
-        (reject)="onReject()"
-        (assignDoctor)="onAssignDoctor($event)"></request-details>
+        (approve)="onApprove($event)"
+        (reject)="onReject()"></request-details>
     </div>
   </div>
 

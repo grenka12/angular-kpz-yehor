@@ -46,46 +46,46 @@ export class AdminDashboardComponent implements OnInit {
     this.selectedRequest.set(request);
   }
 
-  onAssignDoctor(doctorId: number) {
+  onApprove(doctorId: number | null) {
     const request = this.selectedRequest();
-    if (!request?.id || !doctorId) {
+    if (!request?.id) return;
+
+    if (!doctorId) {
+      alert('Оберіть лікаря перед затвердженням!');
       return;
     }
 
     this.loading.set(true);
-    const payload: AssignmentDto = { doctorId, requestId: request.id };
-    this.assignmentsService
-      .createAssignment(payload)
+    this.requestsService
+      .approveRequest(request.id, doctorId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: () => this.refreshAssignments(),
-        error: () => this.errorMessage.set('Failed to create assignment')
+        next: () => {
+          this.loadRequests(request.id);
+          this.refreshAssignments();
+        },
+        error: () => this.errorMessage.set('Unable to approve request')
       });
   }
 
-  onApprove() {
-    this.updateStatus('Approved');
-  }
-
   onReject() {
-    this.updateStatus('Rejected');
-  }
-
-  private updateStatus(status: 'Approved' | 'Rejected') {
     const request = this.selectedRequest();
     if (!request?.id) return;
 
     this.loading.set(true);
     this.requestsService
-      .updateRequest(request.id, { status })
+      .rejectRequest(request.id)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: () => this.refreshRequests(request.id!),
-        error: () => this.errorMessage.set('Unable to update status')
+        next: () => {
+          this.loadRequests();
+          this.refreshAssignments();
+        },
+        error: () => this.errorMessage.set('Unable to reject request')
       });
   }
 
-  private refreshRequests(selectedId?: number) {
+  private loadRequests(selectedId?: number) {
     this.requestsService
       .getRequests()
       .subscribe({

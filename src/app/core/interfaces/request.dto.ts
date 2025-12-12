@@ -1,13 +1,12 @@
 export interface RequestDto {
+  id: number;
   patientLastName: string;
   patientFirstName: string;
-  patientPatronymic: string;
+  patientPatronymic?: string;
   address: string;
   caseDescription: string;
+  priority?: string;
+  status?: string;
   requestedDate?: string;
   requestedTime?: string;
-  priority?: 'Normal' | 'Urgent';
-  status?: 'Pending' | 'Approved' | 'Rejected';
-  availableDoctors?: number[];
-  id?: number;
 }

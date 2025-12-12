@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { RequestDto } from '../interfaces/request.dto';
 import { CommonHttpService } from './common-http.service';
+import { CreateRequestDto } from '../../core/interfaces/createrequest.dto';
+
 
 @Injectable({ providedIn: 'root' })
 export class RequestsService {
@@ -15,9 +17,10 @@ export class RequestsService {
     return this.http.get<RequestDto>(`/api/requests/${id}`);
   }
 
-  createRequest(dto: RequestDto): Observable<RequestDto> {
-    return this.http.post<RequestDto>('/api/requests', dto);
-  }
+  createRequest(dto: CreateRequestDto): Observable<RequestDto> {
+  return this.http.post<RequestDto>('/api/requests', dto);
+}
+
 
   updateRequest(id: number, dto: Partial<RequestDto>): Observable<RequestDto> {
     return this.http.put<RequestDto>(`/api/requests/${id}`, dto);
@@ -27,15 +30,16 @@ export class RequestsService {
     return this.http.delete<void>(`/api/requests/${id}`);
   }
 
-  approveRequest(requestId: number, doctorId: number) {
-    return this.http.post(
-      `/api/requests/${requestId}/approve`,
-      { doctorId },
-      { headers: { 'Content-Type': 'application/json' } }
-    );
-  }
+approveRequest(id: number, doctorId: number) {
+  return this.http.post(`/api/requests/${id}/approve`, {
+    doctorId: doctorId
+  });
+}
 
-  rejectRequest(requestId: number) {
-    return this.http.post(`/api/requests/${requestId}/reject`, {});
-  }
+
+
+rejectRequest(requestId: number) {
+  return this.http.post(`/api/requests/${requestId}/reject`, null);
+}
+
 }

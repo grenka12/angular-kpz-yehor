@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RequestDto } from '../../../core/interfaces/request.dto';
 import { DoctorDto } from '../../../core/interfaces/doctor.dto';
@@ -11,33 +11,34 @@ import { DoctorDto } from '../../../core/interfaces/doctor.dto';
   templateUrl: './request-details.component.html',
   styleUrls: ['./request-details.component.scss']
 })
-export class RequestDetailsComponent implements OnChanges {
+export class RequestDetailsComponent {
+
   @Input() request: RequestDto | null = null;
   @Input() doctors: DoctorDto[] = [];
-  @Output() approve = new EventEmitter<{ doctorId: number | null; requestId: number | null }>();
-  @Output() reject = new EventEmitter<number | null>();
+
+  @Output() approve = new EventEmitter<{ doctorId: number; requestId: number }>();
+  @Output() reject = new EventEmitter<number>();
 
   selectedDoctorId: number | null = null;
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['request']) {
-      this.selectedDoctorId = null;
-    }
+  onDoctorChange(value: string) {
+    const num = Number(value);
+    this.selectedDoctorId = isNaN(num) ? null : num;
+
+    console.log("Doctor changed →", this.selectedDoctorId);
   }
 
   onApprove() {
-    console.log('Approve clicked', {
-      requestId: this.request?.id,
-      selectedDoctorId: this.selectedDoctorId
-    });
+    if (!this.request || this.selectedDoctorId === null) return;
+
     this.approve.emit({
-      doctorId: this.selectedDoctorId,
-      requestId: this.request?.id ?? null
+      requestId: this.request.id,        // 🔥 правильний requestId
+      doctorId: this.selectedDoctorId    // 🔥 правильний doctorId
     });
   }
 
   onReject() {
-    console.log('Reject clicked', { requestId: this.request?.id });
-    this.reject.emit(this.request?.id ?? null);
+    if (!this.request) return;
+    this.reject.emit(this.request.id);
   }
 }

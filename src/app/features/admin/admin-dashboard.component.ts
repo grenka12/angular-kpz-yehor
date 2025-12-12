@@ -15,16 +15,27 @@ import { finalize } from 'rxjs';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, LoaderComponent, RequestsTableComponent, RequestDetailsComponent, AssignmentsTableComponent],
+  imports: [
+    CommonModule,
+    LoaderComponent,
+    RequestsTableComponent,
+    RequestDetailsComponent,
+    AssignmentsTableComponent
+  ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
 export class AdminDashboardComponent implements OnInit {
+
+  // 🔥 ТВОЇ СИГНАЛИ
   requests = signal<RequestDto[]>([]);
   assignments = signal<AssignmentDto[]>([]);
   doctors = signal<DoctorDto[]>([]);
   selectedRequest = signal<RequestDto | null>(null);
+
+  // 🔥 ВАЖЛИВО — САМЕ ЦЕГО ПОЛЯ У ТЕБЕ НЕМА
   activeTab = signal<'requests' | 'assignments'>('requests');
+
   loading = signal(false);
   errorMessage = signal('');
 
@@ -42,95 +53,56 @@ export class AdminDashboardComponent implements OnInit {
     this.activeTab.set(tab);
   }
 
-  onSelectRequest(request: RequestDto) {
-    this.selectedRequest.set(request);
+  onSelectRequest(req: RequestDto) {
+  console.log("Selected request →", req);
+  this.selectedRequest.set(req);
+}
+
+  onApprove(event: { doctorId: number; requestId: number }) {
+
+  if (!event.requestId) {
+    this.errorMessage.set("No requestId passed!");
+    return;
   }
 
-  onApprove(event: { doctorId: number | null; requestId: number | null }) {
-    const incomingId = event?.requestId ?? null;
-    const doctorId = event?.doctorId ?? null;
-    const requestId = incomingId ?? this.selectedRequest()?.id ?? null;
-    const request = requestId
-      ? this.requests().find((r) => r.id === requestId) || this.selectedRequest()
-      : this.selectedRequest();
+  if (!event.doctorId) {
+    this.errorMessage.set("No doctor selected!");
+    return;
+  }
 
-    if (request) {
-      this.selectedRequest.set(request);
-    }
+  console.log("APPROVE → requestId =", event.requestId, " doctorId =", event.doctorId);
 
+  this.requestsService.approveRequest(event.requestId, event.doctorId)
+    .subscribe({
+      next: () => this.loadRequests(event.requestId),
+      error: (err) => this.errorMessage.set(err.error?.message || "Error approving")
+    });
+}
+
+
+  onReject(requestId: number) {
     if (!requestId) {
-      const message = 'Спочатку оберіть заявку перед підтвердженням.';
-      console.warn(message, { request });
-      this.errorMessage.set(message);
+      this.errorMessage.set('Спочатку оберіть заявку перед відхиленням.');
       return;
     }
 
-    if (!doctorId) {
-      alert('Оберіть лікаря перед затвердженням!');
-      this.errorMessage.set('Оберіть лікаря перед затвердженням!');
-      return;
-    }
-
-    console.log('Approving request', { requestId, doctorId });
     this.loading.set(true);
-    this.errorMessage.set('');
-    this.requestsService
-      .approveRequest(requestId, doctorId)
+    this.requestsService.rejectRequest(requestId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
-          console.log('Request approved, refreshing lists');
-          this.errorMessage.set('');
-          this.loadRequests(requestId);
-          this.refreshAssignments();
-        },
-        error: (err) => {
-          console.error('Unable to approve request', err);
-          this.errorMessage.set(err?.error?.message || 'Unable to approve request');
-        }
-      });
-  }
-
-  onReject(requestIdFromChild?: number | null) {
-    const requestId = requestIdFromChild ?? this.selectedRequest()?.id ?? null;
-    const request = requestId
-      ? this.requests().find((r) => r.id === requestId) || this.selectedRequest()
-      : this.selectedRequest();
-
-    if (request) {
-      this.selectedRequest.set(request);
-    }
-
-    if (!requestId) {
-      const message = 'Спочатку оберіть заявку перед відхиленням.';
-      console.warn(message, { request });
-      this.errorMessage.set(message);
-      return;
-    }
-
-    console.log('Rejecting request', { requestId });
-    this.loading.set(true);
-    this.errorMessage.set('');
-    this.requestsService
-      .rejectRequest(requestId)
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: () => {
-          console.log('Request rejected, refreshing lists');
           this.errorMessage.set('');
           this.loadRequests();
           this.refreshAssignments();
         },
-        error: (err) => {
-          console.error('Unable to reject request', err);
-          this.errorMessage.set(err?.error?.message || 'Unable to reject request');
+        error: () => {
+          this.errorMessage.set('Unable to reject request');
         }
       });
   }
 
   private loadRequests(selectedId?: number) {
-    this.requestsService
-      .getRequests()
+    this.requestsService.getRequests()
       .subscribe({
         next: (requests) => {
           this.requests.set(requests);
@@ -140,51 +112,57 @@ export class AdminDashboardComponent implements OnInit {
           }
         },
         error: (err) => {
-          console.error('Unable to reload requests', err);
           this.errorMessage.set(err?.error?.message || 'Unable to reload requests');
         }
       });
   }
 
   private refreshAssignments() {
-    this.assignmentsService.getAssignments().subscribe({
-      next: (data) => this.assignments.set(data),
-      error: (err) => {
-        console.error('Unable to reload assignments', err);
-        this.errorMessage.set(err?.error?.message || 'Unable to reload assignments');
-      }
-    });
+    this.assignmentsService.getAssignments()
+      .subscribe({
+        next: (data) => this.assignments.set(data),
+        error: (err) => {
+          this.errorMessage.set(err?.error?.message || 'Unable to reload assignments');
+        }
+      });
   }
 
   private loadData() {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.requestsService
-      .getRequests()
+    this.requestsService.getRequests()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (requests) => this.requests.set(requests),
         error: (err) => {
-          console.error('Failed to load requests', err);
           this.errorMessage.set(err?.error?.message || 'Failed to load requests');
         }
       });
 
-    this.doctorsService.getDoctors().subscribe({
-      next: (doctors) => this.doctors.set(doctors),
-      error: (err) => {
-        console.error('Failed to load doctors', err);
-        this.errorMessage.set(err?.error?.message || 'Failed to load doctors');
-      }
-    });
+    this.doctorsService.getDoctors()
+      .subscribe({
+        next: (doctors) => this.doctors.set(doctors),
+        error: (err) => {
+          this.errorMessage.set(err?.error?.message || 'Failed to load doctors');
+        }
+      });
 
-    this.assignmentsService.getAssignments().subscribe({
-      next: (data) => this.assignments.set(data),
-      error: (err) => {
-        console.error('Failed to load assignments', err);
-        this.errorMessage.set(err?.error?.message || 'Failed to load assignments');
-      }
-    });
+      this.doctorsService.getDoctors().subscribe({
+  next: (doctors) => {
+    console.log("RAW DOCTORS FROM BACKEND →", doctors);
+    this.doctors.set(doctors);
+  }
+});
+
+        
+
+    this.assignmentsService.getAssignments()
+      .subscribe({
+        next: (data) => this.assignments.set(data),
+        error: (err) => {
+          this.errorMessage.set(err?.error?.message || 'Failed to load assignments');
+        }
+      });
   }
 }

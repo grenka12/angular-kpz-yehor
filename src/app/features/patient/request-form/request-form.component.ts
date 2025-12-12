@@ -7,7 +7,7 @@ import { DoctorsService } from '../../../core/services/doctors.service';
 import { RequestsService } from '../../../core/services/requests.service';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { RequestFormValue } from '../../../shared/interfaces/request-form-value.interface';
-import { toRequestDto } from '../../../shared/helpers/dto-mappers';
+import { toCreateRequestDto } from '../../../shared/helpers/dto-mappers';
 import { DoctorDto } from '../../../core/interfaces/doctor.dto';
 
 @Component({
@@ -55,7 +55,7 @@ export class RequestFormComponent implements OnInit {
 
     const raw = this.form.getRawValue() as RequestFormValue;
     raw.availableDoctors = raw.availableDoctors?.map(Number);
-    const payload = toRequestDto(raw);
+    const payload = toCreateRequestDto(raw);
     this.loading.set(true);
     this.errorMessage.set('');
 

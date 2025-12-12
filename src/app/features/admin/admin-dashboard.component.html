@@ -1,4 +1,5 @@
 <section class="admin">
+
   <header>
     <h2>Administrator</h2>
     <p>Manage incoming requests and doctor assignments.</p>
@@ -14,24 +15,34 @@
   </div>
 
   <div class="panels" *ngIf="activeTab() === 'requests'">
+
     <div class="panel card">
       <requests-table
         [requests]="requests()"
         [selectedRequestId]="selectedRequest()?.id"
-        (selectRequest)="onSelectRequest($event)"></requests-table>
+        (selectRequest)="onSelectRequest($event)">
+      </requests-table>
     </div>
+
     <div class="panel card details-panel" *ngIf="selectedRequest() as request">
       <request-details
         [request]="request"
         [doctors]="doctors()"
         (approve)="onApprove($event)"
-        (reject)="onReject($event)"></request-details>
+        (reject)="onReject($event)">
+      </request-details>
     </div>
+
   </div>
 
   <div class="panel card" *ngIf="activeTab() === 'assignments'">
-    <assignments-table [assignments]="assignments()" [doctors]="doctors()" [requests]="requests()"></assignments-table>
+    <assignments-table
+      [assignments]="assignments()"
+      [doctors]="doctors()"
+      [requests]="requests()">
+    </assignments-table>
   </div>
 
   <app-loader *ngIf="loading()"></app-loader>
+
 </section>

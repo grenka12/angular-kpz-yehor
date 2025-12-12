@@ -1,36 +1,50 @@
 <div *ngIf="request as r" class="details">
+
   <h3>Details</h3>
+
   <div class="grid">
     <div>
       <p class="label">Patient</p>
       <p>{{ r.patientLastName }} {{ r.patientFirstName }}</p>
     </div>
+
     <div>
       <p class="label">Case</p>
       <p>{{ r.caseDescription }}</p>
     </div>
+
     <div>
       <p class="label">Priority</p>
-      <p><span class="tag" [class.urgent]="r.priority === 'Urgent'">{{ r.priority || 'Normal' }}</span></p>
+      <p><span class="tag" [class.urgent]="r.priority === 'Urgent'">{{ r.priority }}</span></p>
     </div>
+
     <div>
       <p class="label">Status</p>
-      <p>{{ r.status || 'Pending' }}</p>
+      <p>{{ r.status }}</p>
     </div>
   </div>
 
   <label>
     <span>Assign doctor</span>
-    <select [(ngModel)]="selectedDoctorId">
-      <option [ngValue]="null">Select doctor</option>
-      <option *ngFor="let doctor of doctors" [ngValue]="doctor.id">{{ doctor.lastName }} {{ doctor.firstName }}</option>
-    </select>
+    <select
+  [ngModel]="selectedDoctorId"
+  (ngModelChange)="onDoctorChange($event)"
+>
+  <option [value]="null">Select doctor</option>
+
+  <option *ngFor="let d of doctors" [value]="d.id">
+    {{ d.lastName }} {{ d.firstName }}
+  </option>
+</select>
+
+
   </label>
 
   <div class="actions">
-    <button class="approve" type="button" (click)="onApprove()">Approve</button>
-    <button class="reject" type="button" (click)="onReject()">Reject</button>
+    <button class="approve" (click)="onApprove()">Approve</button>
+    <button class="reject" (click)="onReject()">Reject</button>
   </div>
+
 </div>
 
 <p *ngIf="!request" class="muted">Select a request to see details.</p>

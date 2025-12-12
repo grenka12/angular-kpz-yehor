@@ -21,15 +21,39 @@ export class RequestDetailsComponent {
 
   selectedDoctorId: number | null = null;
 
+  get patientName(): string {
+    if (!this.request) return '';
+
+    return [
+      this.request.patientLastName,
+      this.request.patientFirstName,
+      this.request.patientPatronymic
+    ].filter(Boolean).join(' ');
+  }
+
+  get isPending(): boolean {
+    return (this.request?.status || 'Pending') === 'Pending';
+  }
+
+  get statusLabel(): string {
+    return this.request?.status || 'Pending';
+  }
+
+  get requestedDateTime(): string {
+    if (!this.request?.requestedDate && !this.request?.requestedTime) {
+      return 'Not scheduled';
+    }
+
+    return [this.request?.requestedDate, this.request?.requestedTime].filter(Boolean).join(' ');
+  }
+
   onDoctorChange(value: string) {
     const num = Number(value);
     this.selectedDoctorId = isNaN(num) ? null : num;
-
-    console.log("Doctor changed →", this.selectedDoctorId);
   }
 
   onApprove() {
-    if (!this.request || this.selectedDoctorId === null) return;
+    if (!this.request || this.selectedDoctorId === null || !this.isPending) return;
 
     this.approve.emit({
       requestId: this.request.id,        // 🔥 правильний requestId
@@ -38,7 +62,7 @@ export class RequestDetailsComponent {
   }
 
   onReject() {
-    if (!this.request) return;
+    if (!this.request || !this.isPending) return;
     this.reject.emit(this.request.id);
   }
 }

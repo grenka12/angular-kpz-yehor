@@ -1,1 +1,15 @@
-/* You can add global styles to this file, and also import other style files */
+@use 'assets/styles/variables';
+@use 'assets/styles/mixins';
+@use 'assets/styles/animations';
+@use 'assets/styles/tables';
+@use 'assets/styles/index';
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: variables.$surface-color;
+  color: variables.$text-color;
+}
+
+a {
+  color: inherit;
+}

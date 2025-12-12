@@ -1,0 +1,64 @@
+@use '../../../assets/styles/variables' as *;
+@use '../../../assets/styles/mixins' as *;
+@use '../../../assets/styles/animations';
+
+.landing {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-items: center;
+  gap: 2.5rem;
+  min-height: 70vh;
+  padding: 3rem 0;
+}
+
+.branding {
+  animation: fadeIn 0.6s ease;
+  h1 {
+    font-size: clamp(2.2rem, 3vw, 3rem);
+    margin: 0 0 0.5rem;
+  }
+
+  .subtitle {
+    color: $muted-text;
+    max-width: 540px;
+  }
+}
+
+.eyebrow {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $accent-color;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  button {
+    @include button();
+    font-size: 1rem;
+    min-width: 140px;
+  }
+
+  .secondary {
+    background: white;
+    color: $primary-color;
+    border: 2px solid $primary-color;
+  }
+}
+
+.illustration {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bubble {
+  @include card;
+  background: linear-gradient(135deg, rgba(25, 118, 210, 0.08), rgba(33, 150, 243, 0.15));
+  color: $text-color;
+  font-weight: 600;
+  animation: pulse 4s ease infinite;
+}

@@ -1,0 +1,35 @@
+<section class="admin">
+  <header>
+    <h2>Administrator</h2>
+    <p>Manage incoming requests and doctor assignments.</p>
+  </header>
+
+  <div class="tabs">
+    <button [class.active]="activeTab() === 'requests'" (click)="setTab('requests')">Requests</button>
+    <button [class.active]="activeTab() === 'assignments'" (click)="setTab('assignments')">Assignments</button>
+  </div>
+
+  <div class="panels" *ngIf="activeTab() === 'requests'">
+    <div class="panel card">
+      <requests-table
+        [requests]="requests()"
+        [selectedRequestId]="selectedRequest()?.id"
+        (selectRequest)="onSelectRequest($event)"></requests-table>
+    </div>
+    <div class="panel card details-panel" *ngIf="selectedRequest() as request">
+      <request-details
+        [request]="request"
+        [doctors]="doctors()"
+        (approve)="onApprove()"
+        (reject)="onReject()"
+        (assignDoctor)="onAssignDoctor($event)"></request-details>
+    </div>
+  </div>
+
+  <div class="panel card" *ngIf="activeTab() === 'assignments'">
+    <assignments-table [assignments]="assignments()" [doctors]="doctors()" [requests]="requests()"></assignments-table>
+  </div>
+
+  <app-loader *ngIf="loading()"></app-loader>
+  <p *ngIf="errorMessage()" class="error">{{ errorMessage() }}</p>
+</section>

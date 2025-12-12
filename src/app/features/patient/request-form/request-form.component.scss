@@ -1,0 +1,76 @@
+@use '../../../../assets/styles/variables' as *;
+@use '../../../../assets/styles/mixins' as *;
+
+.form-wrapper {
+  display: grid;
+  gap: 1.5rem;
+  margin: 2rem auto;
+}
+
+header {
+  h2 {
+    margin: 0;
+    font-size: 1.6rem;
+  }
+
+  p {
+    color: $muted-text;
+    margin: 0.25rem 0 0;
+  }
+}
+
+form {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  color: $text-color;
+
+  span {
+    font-weight: 600;
+  }
+
+  input,
+  textarea,
+  select {
+    @include input;
+    font-size: 1rem;
+    background: #fff;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    @include button();
+    min-width: 160px;
+  }
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.success {
+  color: #0f9d58;
+}
+
+.muted {
+  color: $muted-text;
+}

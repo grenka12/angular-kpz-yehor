@@ -1,0 +1,25 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th>Patient</th>
+      <th>Case</th>
+      <th>Priority</th>
+      <th>Status</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr
+      *ngFor="let request of requests; trackBy: trackById"
+      (click)="onRowClick(request)"
+      [class.active]="request.id === selectedRequestId">
+      <td>{{ request.patientLastName }} {{ request.patientFirstName }}</td>
+      <td>{{ request.caseDescription }}</td>
+      <td><span class="tag" [class.urgent]="request.priority === 'Urgent'">{{ request.priority || 'Normal' }}</span></td>
+      <td>{{ request.status || 'Pending' }}</td>
+      <td>{{ request.requestedDate }} {{ request.requestedTime }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p *ngIf="!requests?.length" class="muted">No requests yet.</p>

@@ -1,0 +1,67 @@
+<section class="form-wrapper card">
+  <header>
+    <h2>{{ title() }}</h2>
+    <p>Submit a new field visit request for home assistance.</p>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid">
+      <label>
+        <span>First Name</span>
+        <input type="text" formControlName="patientFirstName" placeholder="Enter first name" />
+      </label>
+      <label>
+        <span>Last Name</span>
+        <input type="text" formControlName="patientLastName" placeholder="Enter last name" />
+      </label>
+      <label>
+        <span>Patronymic</span>
+        <input type="text" formControlName="patientPatronymic" placeholder="Enter patronymic" />
+      </label>
+    </div>
+
+    <label>
+      <span>Address</span>
+      <input type="text" formControlName="address" placeholder="Street, city" />
+    </label>
+
+    <label>
+      <span>Case Description</span>
+      <textarea formControlName="caseDescription" rows="3" placeholder="Describe the case"></textarea>
+    </label>
+
+    <div class="grid">
+      <label>
+        <span>Requested Date</span>
+        <input type="date" formControlName="requestedDate" />
+      </label>
+      <label>
+        <span>Requested Time</span>
+        <input type="time" formControlName="requestedTime" />
+      </label>
+      <label>
+        <span>Priority</span>
+        <select formControlName="priority">
+          <option value="Normal">Normal</option>
+          <option value="Urgent">Urgent</option>
+        </select>
+      </label>
+    </div>
+
+    <label>
+      <span>Available Doctors</span>
+      <select multiple formControlName="availableDoctors">
+        <option *ngFor="let doctor of doctors()" [value]="doctor.id">{{ doctor.lastName }} {{ doctor.firstName }}</option>
+      </select>
+      <small class="muted">Hold Ctrl/Cmd to select multiple doctors.</small>
+    </label>
+
+    <div class="actions">
+      <button type="submit" [disabled]="loading()">Submit Request</button>
+    </div>
+
+    <app-loader *ngIf="loading()"></app-loader>
+    <p *ngIf="errorMessage()" class="error">{{ errorMessage() }}</p>
+    <p *ngIf="submitted()" class="success">Request successfully sent!</p>
+  </form>
+</section>

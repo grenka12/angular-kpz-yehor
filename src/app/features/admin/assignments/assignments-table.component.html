@@ -1,0 +1,17 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th>Doctor</th>
+      <th>Request</th>
+      <th>Request Id</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let assignment of assignments">
+      <td>{{ resolveDoctorName(assignment.doctorId) }}</td>
+      <td>{{ resolveRequestCase(assignment.requestId) }}</td>
+      <td>#{{ assignment.requestId }}</td>
+    </tr>
+  </tbody>
+</table>
+<p *ngIf="!assignments?.length" class="muted">No assignments yet.</p>

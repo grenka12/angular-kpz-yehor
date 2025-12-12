@@ -1,7 +1,8 @@
-<h1>Hello, {{ title() }}</h1>
-
-<nav>
-  <a routerLink="/custom">Custom Component</a>
-</nav>
-
-<router-outlet></router-outlet>
+<div class="app-shell">
+  <header class="app-bar">
+    <div class="logo">Field Visit Management</div>
+  </header>
+  <main class="app-content container">
+    <router-outlet></router-outlet>
+  </main>
+</div>

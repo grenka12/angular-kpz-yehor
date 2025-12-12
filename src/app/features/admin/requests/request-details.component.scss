@@ -1,0 +1,59 @@
+@use '../../../../assets/styles/variables' as *;
+@use '../../../../assets/styles/mixins' as *;
+
+.details {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.label {
+  margin: 0;
+  color: $muted-text;
+  font-weight: 600;
+}
+
+select {
+  @include input;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  button {
+    @include button();
+  }
+
+  .reject {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecdd3;
+  }
+
+  .assign {
+    background: $secondary-color;
+  }
+}
+
+.tag {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: $primary-color;
+  font-weight: 600;
+
+  &.urgent {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+}
+
+.muted {
+  color: $muted-text;
+}

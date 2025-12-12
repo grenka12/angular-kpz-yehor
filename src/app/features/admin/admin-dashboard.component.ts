@@ -46,46 +46,56 @@ export class AdminDashboardComponent implements OnInit {
     this.selectedRequest.set(request);
   }
 
-  onAssignDoctor(doctorId: number) {
+  onApprove(doctorId: number | null) {
     const request = this.selectedRequest();
-    if (!request?.id || !doctorId) {
+    if (!request?.id) return;
+
+    if (!doctorId) {
+      alert('Оберіть лікаря перед затвердженням!');
       return;
     }
 
     this.loading.set(true);
-    const payload: AssignmentDto = { doctorId, requestId: request.id };
-    this.assignmentsService
-      .createAssignment(payload)
+    this.errorMessage.set('');
+    this.requestsService
+      .approveRequest(request.id, doctorId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: () => this.refreshAssignments(),
-        error: () => this.errorMessage.set('Failed to create assignment')
+        next: () => {
+          this.errorMessage.set('');
+          this.loadRequests(request.id);
+          this.refreshAssignments();
+        },
+        error: (err) => {
+          console.error('Unable to approve request', err);
+          this.errorMessage.set(err?.error?.message || 'Unable to approve request');
+        }
       });
   }
 
-  onApprove() {
-    this.updateStatus('Approved');
-  }
-
   onReject() {
-    this.updateStatus('Rejected');
-  }
-
-  private updateStatus(status: 'Approved' | 'Rejected') {
     const request = this.selectedRequest();
     if (!request?.id) return;
 
     this.loading.set(true);
+    this.errorMessage.set('');
     this.requestsService
-      .updateRequest(request.id, { status })
+      .rejectRequest(request.id)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: () => this.refreshRequests(request.id!),
-        error: () => this.errorMessage.set('Unable to update status')
+        next: () => {
+          this.errorMessage.set('');
+          this.loadRequests();
+          this.refreshAssignments();
+        },
+        error: (err) => {
+          console.error('Unable to reject request', err);
+          this.errorMessage.set(err?.error?.message || 'Unable to reject request');
+        }
       });
   }
 
-  private refreshRequests(selectedId?: number) {
+  private loadRequests(selectedId?: number) {
     this.requestsService
       .getRequests()
       .subscribe({
@@ -96,14 +106,20 @@ export class AdminDashboardComponent implements OnInit {
             this.selectedRequest.set(found);
           }
         },
-        error: () => this.errorMessage.set('Unable to reload requests')
+        error: (err) => {
+          console.error('Unable to reload requests', err);
+          this.errorMessage.set(err?.error?.message || 'Unable to reload requests');
+        }
       });
   }
 
   private refreshAssignments() {
     this.assignmentsService.getAssignments().subscribe({
       next: (data) => this.assignments.set(data),
-      error: () => this.errorMessage.set('Unable to reload assignments')
+      error: (err) => {
+        console.error('Unable to reload assignments', err);
+        this.errorMessage.set(err?.error?.message || 'Unable to reload assignments');
+      }
     });
   }
 
@@ -116,17 +132,26 @@ export class AdminDashboardComponent implements OnInit {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (requests) => this.requests.set(requests),
-        error: () => this.errorMessage.set('Failed to load requests')
+        error: (err) => {
+          console.error('Failed to load requests', err);
+          this.errorMessage.set(err?.error?.message || 'Failed to load requests');
+        }
       });
 
     this.doctorsService.getDoctors().subscribe({
       next: (doctors) => this.doctors.set(doctors),
-      error: () => this.errorMessage.set('Failed to load doctors')
+      error: (err) => {
+        console.error('Failed to load doctors', err);
+        this.errorMessage.set(err?.error?.message || 'Failed to load doctors');
+      }
     });
 
     this.assignmentsService.getAssignments().subscribe({
       next: (data) => this.assignments.set(data),
-      error: () => this.errorMessage.set('Failed to load assignments')
+      error: (err) => {
+        console.error('Failed to load assignments', err);
+        this.errorMessage.set(err?.error?.message || 'Failed to load assignments');
+      }
     });
   }
 }

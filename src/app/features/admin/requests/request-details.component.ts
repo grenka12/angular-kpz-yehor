@@ -14,15 +14,12 @@ import { DoctorDto } from '../../../core/interfaces/doctor.dto';
 export class RequestDetailsComponent {
   @Input() request: RequestDto | null = null;
   @Input() doctors: DoctorDto[] = [];
-  @Output() approve = new EventEmitter<void>();
+  @Output() approve = new EventEmitter<number | null>();
   @Output() reject = new EventEmitter<void>();
-  @Output() assignDoctor = new EventEmitter<number>();
 
   selectedDoctorId: number | null = null;
 
-  onAssign() {
-    if (this.selectedDoctorId) {
-      this.assignDoctor.emit(this.selectedDoctorId);
-    }
+  onApprove() {
+    this.approve.emit(this.selectedDoctorId);
   }
 }

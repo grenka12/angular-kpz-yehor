@@ -2,10 +2,15 @@
 
   <h3>Details</h3>
 
-  <div class="grid">
+  <div class="grid two-cols">
     <div>
       <p class="label">Patient</p>
-      <p>{{ r.patientLastName }} {{ r.patientFirstName }}</p>
+      <p class="strong">{{ patientName }}</p>
+    </div>
+
+    <div>
+      <p class="label">Request ID</p>
+      <p>#{{ r.id }}</p>
     </div>
 
     <div>
@@ -15,34 +20,48 @@
 
     <div>
       <p class="label">Priority</p>
-      <p><span class="tag" [class.urgent]="r.priority === 'Urgent'">{{ r.priority }}</span></p>
+      <p><span class="tag" [class.urgent]="r.priority === 'Urgent'">{{ r.priority || 'Normal' }}</span></p>
+    </div>
+  </div>
+
+  <div class="grid two-cols">
+    <div>
+      <p class="label">Status</p>
+      <p>
+        <span class="tag status" [class.approved]="statusLabel === 'Approved'" [class.rejected]="statusLabel === 'Rejected'" [class.pending]="isPending">{{ statusLabel }}</span>
+      </p>
     </div>
 
     <div>
-      <p class="label">Status</p>
-      <p>{{ r.status }}</p>
+      <p class="label">Requested for</p>
+      <p>{{ requestedDateTime }}</p>
+    </div>
+
+    <div>
+      <p class="label">Address</p>
+      <p>{{ r.address }}</p>
     </div>
   </div>
+
+  <p *ngIf="!isPending" class="hint">This request is already {{ statusLabel?.toLowerCase() }}.</p>
 
   <label>
     <span>Assign doctor</span>
     <select
-  [ngModel]="selectedDoctorId"
-  (ngModelChange)="onDoctorChange($event)"
->
-  <option [value]="null">Select doctor</option>
+      [ngModel]="selectedDoctorId"
+      (ngModelChange)="onDoctorChange($event)"
+      [disabled]="!isPending">
+      <option [value]="null">Select doctor</option>
 
-  <option *ngFor="let d of doctors" [value]="d.id">
-    {{ d.lastName }} {{ d.firstName }}
-  </option>
-</select>
-
-
+      <option *ngFor="let d of doctors" [value]="d.id">
+        {{ d.lastName }} {{ d.firstName }}
+      </option>
+    </select>
   </label>
 
   <div class="actions">
-    <button class="approve" (click)="onApprove()">Approve</button>
-    <button class="reject" (click)="onReject()">Reject</button>
+    <button class="approve" (click)="onApprove()" [disabled]="!isPending || selectedDoctorId === null">Approve</button>
+    <button class="reject" (click)="onReject()" [disabled]="!isPending">Reject</button>
   </div>
 
 </div>

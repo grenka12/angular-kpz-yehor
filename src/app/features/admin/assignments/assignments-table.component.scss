@@ -4,3 +4,13 @@
 .muted {
   color: $muted-text;
 }
+
+.cell-main {
+  font-weight: 600;
+}
+
+.cell-sub {
+  color: $muted-text;
+  font-size: 0.9rem;
+  margin-top: 0.15rem;
+}

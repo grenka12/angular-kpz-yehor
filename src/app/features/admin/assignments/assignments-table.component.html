@@ -2,15 +2,30 @@
   <thead>
     <tr>
       <th>Doctor</th>
+      <th>Patient</th>
+      <th>Requested time</th>
       <th>Request</th>
       <th>Request Id</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let assignment of assignments">
-      <td>{{ resolveDoctorName(assignment.doctorId) }}</td>
-      <td>{{ resolveRequestCase(assignment.requestId) }}</td>
-      <td>#{{ assignment.requestId }}</td>
+      <td>
+        <div class="cell-main">{{ resolveDoctorName(assignment.doctorId) }}</div>
+      </td>
+      <td>
+        <div class="cell-main">{{ resolvePatientName(assignment.requestId) }}</div>
+        <div class="cell-sub" *ngIf="resolveRequestAddress(assignment.requestId)">
+          {{ resolveRequestAddress(assignment.requestId) }}
+        </div>
+      </td>
+      <td>
+        <div class="cell-main">{{ resolveRequestedSlot(assignment.requestId) }}</div>
+      </td>
+      <td>
+        <div class="cell-main">{{ resolveRequestCase(assignment.requestId) }}</div>
+      </td>
+      <td class="muted">#{{ assignment.requestId }}</td>
     </tr>
   </tbody>
 </table>

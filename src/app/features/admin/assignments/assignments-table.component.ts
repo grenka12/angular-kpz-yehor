@@ -21,8 +21,46 @@ export class AssignmentsTableComponent {
     return doctor ? `${doctor.lastName} ${doctor.firstName}` : 'N/A';
   }
 
+  resolvePatientName(requestId: number) {
+    const request = this.findRequestById(requestId);
+
+    if (!request) {
+      return 'Unknown patient';
+    }
+
+    return [request.patientLastName, request.patientFirstName, request.patientPatronymic]
+      .filter(Boolean)
+      .join(' ');
+  }
+
+  resolveRequestedSlot(requestId: number) {
+    const request = this.findRequestById(requestId);
+
+    if (!request) {
+      return 'N/A';
+    }
+
+    const date = request.requestedDate || '';
+    const time = request.requestedTime || '';
+
+    if (!date && !time) {
+      return 'Not specified';
+    }
+
+    return [date, time].filter(Boolean).join(' ');
+  }
+
   resolveRequestCase(id: number) {
-    const request = this.requests.find((r) => r.id === id);
-    return request ? request.caseDescription : 'N/A';
+    const request = this.findRequestById(id);
+    return request ? request.caseDescription : 'Unknown request';
+  }
+
+  resolveRequestAddress(id: number) {
+    const request = this.findRequestById(id);
+    return request?.address || '';
+  }
+
+  private findRequestById(requestId: number) {
+    return this.requests.find((r) => r.id === requestId);
   }
 }

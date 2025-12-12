@@ -26,4 +26,16 @@ export class RequestsService {
   deleteRequest(id: number): Observable<void> {
     return this.http.delete<void>(`/api/requests/${id}`);
   }
+
+  approveRequest(requestId: number, doctorId: number) {
+    return this.http.post(
+      `/api/requests/${requestId}/approve`,
+      { doctorId },
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  rejectRequest(requestId: number) {
+    return this.http.post(`/api/requests/${requestId}/reject`, {});
+  }
 }

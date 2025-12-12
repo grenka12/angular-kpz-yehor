@@ -4,6 +4,10 @@
     <p>Manage incoming requests and doctor assignments.</p>
   </header>
 
+  <div *ngIf="errorMessage()" class="error-box">
+    {{ errorMessage() }}
+  </div>
+
   <div class="tabs">
     <button [class.active]="activeTab() === 'requests'" (click)="setTab('requests')">Requests</button>
     <button [class.active]="activeTab() === 'assignments'" (click)="setTab('assignments')">Assignments</button>
@@ -20,9 +24,8 @@
       <request-details
         [request]="request"
         [doctors]="doctors()"
-        (approve)="onApprove()"
-        (reject)="onReject()"
-        (assignDoctor)="onAssignDoctor($event)"></request-details>
+        (approve)="onApprove($event)"
+        (reject)="onReject()"></request-details>
     </div>
   </div>
 
@@ -31,5 +34,4 @@
   </div>
 
   <app-loader *ngIf="loading()"></app-loader>
-  <p *ngIf="errorMessage()" class="error">{{ errorMessage() }}</p>
 </section>

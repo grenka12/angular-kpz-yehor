@@ -28,9 +28,8 @@
   </label>
 
   <div class="actions">
-    <button class="approve" type="button" (click)="approve.emit()">Approve</button>
-    <button class="reject" type="button" (click)="reject.emit()">Reject</button>
-    <button class="assign" type="button" (click)="onAssign()" [disabled]="!selectedDoctorId">Assign doctor</button>
+    <button class="approve" type="button" (click)="onApprove()">Approve</button>
+    <button class="reject" type="button" (click)="onReject()">Reject</button>
   </div>
 </div>
 

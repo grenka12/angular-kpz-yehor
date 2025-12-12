@@ -46,46 +46,89 @@ export class AdminDashboardComponent implements OnInit {
     this.selectedRequest.set(request);
   }
 
-  onAssignDoctor(doctorId: number) {
-    const request = this.selectedRequest();
-    if (!request?.id || !doctorId) {
+  onApprove(event: { doctorId: number | null; requestId: number | null }) {
+    const incomingId = event?.requestId ?? null;
+    const doctorId = event?.doctorId ?? null;
+    const requestId = incomingId ?? this.selectedRequest()?.id ?? null;
+    const request = requestId
+      ? this.requests().find((r) => r.id === requestId) || this.selectedRequest()
+      : this.selectedRequest();
+
+    if (request) {
+      this.selectedRequest.set(request);
+    }
+
+    if (!requestId) {
+      const message = 'Спочатку оберіть заявку перед підтвердженням.';
+      console.warn(message, { request });
+      this.errorMessage.set(message);
       return;
     }
 
+    if (!doctorId) {
+      alert('Оберіть лікаря перед затвердженням!');
+      this.errorMessage.set('Оберіть лікаря перед затвердженням!');
+      return;
+    }
+
+    console.log('Approving request', { requestId, doctorId });
     this.loading.set(true);
-    const payload: AssignmentDto = { doctorId, requestId: request.id };
-    this.assignmentsService
-      .createAssignment(payload)
-      .pipe(finalize(() => this.loading.set(false)))
-      .subscribe({
-        next: () => this.refreshAssignments(),
-        error: () => this.errorMessage.set('Failed to create assignment')
-      });
-  }
-
-  onApprove() {
-    this.updateStatus('Approved');
-  }
-
-  onReject() {
-    this.updateStatus('Rejected');
-  }
-
-  private updateStatus(status: 'Approved' | 'Rejected') {
-    const request = this.selectedRequest();
-    if (!request?.id) return;
-
-    this.loading.set(true);
+    this.errorMessage.set('');
     this.requestsService
-      .updateRequest(request.id, { status })
+      .approveRequest(requestId, doctorId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: () => this.refreshRequests(request.id!),
-        error: () => this.errorMessage.set('Unable to update status')
+        next: () => {
+          console.log('Request approved, refreshing lists');
+          this.errorMessage.set('');
+          this.loadRequests(requestId);
+          this.refreshAssignments();
+        },
+        error: (err) => {
+          console.error('Unable to approve request', err);
+          this.errorMessage.set(err?.error?.message || 'Unable to approve request');
+        }
       });
   }
 
-  private refreshRequests(selectedId?: number) {
+  onReject(requestIdFromChild?: number | null) {
+    const requestId = requestIdFromChild ?? this.selectedRequest()?.id ?? null;
+    const request = requestId
+      ? this.requests().find((r) => r.id === requestId) || this.selectedRequest()
+      : this.selectedRequest();
+
+    if (request) {
+      this.selectedRequest.set(request);
+    }
+
+    if (!requestId) {
+      const message = 'Спочатку оберіть заявку перед відхиленням.';
+      console.warn(message, { request });
+      this.errorMessage.set(message);
+      return;
+    }
+
+    console.log('Rejecting request', { requestId });
+    this.loading.set(true);
+    this.errorMessage.set('');
+    this.requestsService
+      .rejectRequest(requestId)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: () => {
+          console.log('Request rejected, refreshing lists');
+          this.errorMessage.set('');
+          this.loadRequests();
+          this.refreshAssignments();
+        },
+        error: (err) => {
+          console.error('Unable to reject request', err);
+          this.errorMessage.set(err?.error?.message || 'Unable to reject request');
+        }
+      });
+  }
+
+  private loadRequests(selectedId?: number) {
     this.requestsService
       .getRequests()
       .subscribe({
@@ -96,14 +139,20 @@ export class AdminDashboardComponent implements OnInit {
             this.selectedRequest.set(found);
           }
         },
-        error: () => this.errorMessage.set('Unable to reload requests')
+        error: (err) => {
+          console.error('Unable to reload requests', err);
+          this.errorMessage.set(err?.error?.message || 'Unable to reload requests');
+        }
       });
   }
 
   private refreshAssignments() {
     this.assignmentsService.getAssignments().subscribe({
       next: (data) => this.assignments.set(data),
-      error: () => this.errorMessage.set('Unable to reload assignments')
+      error: (err) => {
+        console.error('Unable to reload assignments', err);
+        this.errorMessage.set(err?.error?.message || 'Unable to reload assignments');
+      }
     });
   }
 
@@ -116,17 +165,26 @@ export class AdminDashboardComponent implements OnInit {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (requests) => this.requests.set(requests),
-        error: () => this.errorMessage.set('Failed to load requests')
+        error: (err) => {
+          console.error('Failed to load requests', err);
+          this.errorMessage.set(err?.error?.message || 'Failed to load requests');
+        }
       });
 
     this.doctorsService.getDoctors().subscribe({
       next: (doctors) => this.doctors.set(doctors),
-      error: () => this.errorMessage.set('Failed to load doctors')
+      error: (err) => {
+        console.error('Failed to load doctors', err);
+        this.errorMessage.set(err?.error?.message || 'Failed to load doctors');
+      }
     });
 
     this.assignmentsService.getAssignments().subscribe({
       next: (data) => this.assignments.set(data),
-      error: () => this.errorMessage.set('Failed to load assignments')
+      error: (err) => {
+        console.error('Failed to load assignments', err);
+        this.errorMessage.set(err?.error?.message || 'Failed to load assignments');
+      }
     });
   }
 }

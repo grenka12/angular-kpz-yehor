@@ -1,0 +1,75 @@
+<section class="patient-form">
+  <header class="header">
+    <div>
+      <h2>Patient Request</h2>
+      <p>Submit a visit request</p>
+    </div>
+    <div class="actions">
+      <button type="button" class="ghost" routerLink="/">Back</button>
+      <button type="button" class="primary" (click)="submit()" [disabled]="submitting">
+        Submit Request
+      </button>
+    </div>
+  </header>
+
+  <form [formGroup]="requestForm" class="grid">
+    <div class="field">
+      <label>First Name</label>
+      <input formControlName="patientFirstName" type="text" placeholder="Enter first name" />
+    </div>
+    <div class="field">
+      <label>Last Name</label>
+      <input formControlName="patientLastName" type="text" placeholder="Enter last name" />
+    </div>
+    <div class="field">
+      <label>Patronymic</label>
+      <input formControlName="patientPatronymic" type="text" placeholder="Optional" />
+    </div>
+    <div class="field full">
+      <label>Address</label>
+      <input formControlName="address" type="text" placeholder="Enter address" />
+    </div>
+    <div class="field">
+      <label>Case Description</label>
+      <textarea
+        formControlName="caseDescription"
+        rows="4"
+        placeholder="Describe the case..."
+      ></textarea>
+    </div>
+    <div class="field">
+      <label>Requested Date</label>
+      <input formControlName="requestedDate" type="date" />
+    </div>
+    <div class="field">
+      <label>Requested Time</label>
+      <input formControlName="requestedTime" type="time" />
+    </div>
+    <div class="field">
+      <label>Priority</label>
+      <select formControlName="priority">
+        <option value="Normal">Normal</option>
+        <option value="Urgent">Urgent</option>
+      </select>
+      <label class="checkbox">
+        <input type="checkbox" (change)="requestForm.patchValue({ priority: $event.target.checked ? 'Urgent' : 'Normal' })" />
+        Urgent / Immediate visit
+      </label>
+    </div>
+    <div class="field">
+      <label>Available Doctors</label>
+      <div class="doctors-list">
+        <div class="doctor" *ngFor="let doctor of doctors">
+          <label>
+            <input type="radio" [value]="doctor.id" formControlName="doctorId" />
+            <div class="doctor__info">
+              <span class="name">{{ doctor.lastName }} {{ doctor.firstName }}</span>
+              <span class="specialty">{{ doctor.specialty }}</span>
+            </div>
+          </label>
+        </div>
+        <p *ngIf="!doctors.length" class="muted">No doctors found.</p>
+      </div>
+    </div>
+  </form>
+</section>

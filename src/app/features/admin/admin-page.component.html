@@ -1,0 +1,44 @@
+<section class="admin">
+  <header class="header">
+    <div>
+      <h2>Administration</h2>
+      <p>Manage requests and assignments</p>
+    </div>
+    <div class="header__actions">
+      <button routerLink="/" class="ghost">Back</button>
+      <button class="primary" type="button">Save</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button
+      class="tab"
+      [class.active]="activeTab === 'requests'"
+      (click)="activeTab = 'requests'"
+    >
+      Requests
+    </button>
+    <button
+      class="tab"
+      [class.active]="activeTab === 'assignments'"
+      (click)="activeTab = 'assignments'"
+    >
+      Assignments
+    </button>
+  </div>
+
+  <div class="content">
+    <section *ngIf="activeTab === 'requests'" class="requests">
+      <app-requests-table (selected)="onRequestSelected($event)" (updated)="onRequestUpdated($event)"></app-requests-table>
+      <app-request-details
+        [request]="selectedRequest"
+        [doctors]="doctors"
+        (updated)="onRequestUpdated($event)"
+      ></app-request-details>
+    </section>
+
+    <section *ngIf="activeTab === 'assignments'" class="assignments">
+      <app-assignments-table></app-assignments-table>
+    </section>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+<div class="table-card">
+  <div class="table-header">
+    <h3>Requests</h3>
+  </div>
+  <div class="table-body">
+    <table>
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Date</th>
+          <th>Priority</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let request of requests"
+          (click)="selectRequest(request)"
+          [class.active]="selectedId === request.id"
+        >
+          <td>{{ request.patientLastName }} {{ request.patientFirstName }}</td>
+          <td>{{ request.requestedDate || '-' }}</td>
+          <td><span class="tag" [class.urgent]="request.priority === 'Urgent'">{{ request.priority || 'Normal' }}</span></td>
+          <td>{{ request.status || 'Pending' }}</td>
+        </tr>
+        <tr *ngIf="!requests.length">
+          <td colspan="4" class="muted">No requests found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

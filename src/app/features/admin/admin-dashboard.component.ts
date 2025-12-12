@@ -48,13 +48,20 @@ export class AdminDashboardComponent implements OnInit {
 
   onApprove(doctorId: number | null) {
     const request = this.selectedRequest();
-    if (!request?.id) return;
-
-    if (!doctorId) {
-      alert('Оберіть лікаря перед затвердженням!');
+    if (!request?.id) {
+      const message = 'Спочатку оберіть заявку перед підтвердженням.';
+      console.warn(message, { request });
+      this.errorMessage.set(message);
       return;
     }
 
+    if (!doctorId) {
+      alert('Оберіть лікаря перед затвердженням!');
+      this.errorMessage.set('Оберіть лікаря перед затвердженням!');
+      return;
+    }
+
+    console.log('Approving request', { requestId: request.id, doctorId });
     this.loading.set(true);
     this.errorMessage.set('');
     this.requestsService
@@ -62,6 +69,7 @@ export class AdminDashboardComponent implements OnInit {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
+          console.log('Request approved, refreshing lists');
           this.errorMessage.set('');
           this.loadRequests(request.id);
           this.refreshAssignments();
@@ -75,8 +83,14 @@ export class AdminDashboardComponent implements OnInit {
 
   onReject() {
     const request = this.selectedRequest();
-    if (!request?.id) return;
+    if (!request?.id) {
+      const message = 'Спочатку оберіть заявку перед відхиленням.';
+      console.warn(message, { request });
+      this.errorMessage.set(message);
+      return;
+    }
 
+    console.log('Rejecting request', { requestId: request.id });
     this.loading.set(true);
     this.errorMessage.set('');
     this.requestsService
@@ -84,6 +98,7 @@ export class AdminDashboardComponent implements OnInit {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
+          console.log('Request rejected, refreshing lists');
           this.errorMessage.set('');
           this.loadRequests();
           this.refreshAssignments();

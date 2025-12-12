@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RequestDto } from '../../../core/interfaces/request.dto';
 import { DoctorDto } from '../../../core/interfaces/doctor.dto';
@@ -11,7 +11,7 @@ import { DoctorDto } from '../../../core/interfaces/doctor.dto';
   templateUrl: './request-details.component.html',
   styleUrls: ['./request-details.component.scss']
 })
-export class RequestDetailsComponent {
+export class RequestDetailsComponent implements OnChanges {
   @Input() request: RequestDto | null = null;
   @Input() doctors: DoctorDto[] = [];
   @Output() approve = new EventEmitter<number | null>();
@@ -19,7 +19,22 @@ export class RequestDetailsComponent {
 
   selectedDoctorId: number | null = null;
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['request']) {
+      this.selectedDoctorId = null;
+    }
+  }
+
   onApprove() {
+    console.log('Approve clicked', {
+      requestId: this.request?.id,
+      selectedDoctorId: this.selectedDoctorId
+    });
     this.approve.emit(this.selectedDoctorId);
+  }
+
+  onReject() {
+    console.log('Reject clicked', { requestId: this.request?.id });
+    this.reject.emit();
   }
 }

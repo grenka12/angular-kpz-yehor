@@ -60,3 +60,12 @@ header {
 .error {
   color: #b91c1c;
 }
+
+.error-box {
+  padding: 0.75rem 1rem;
+  border-radius: $border-radius;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecdd3;
+  box-shadow: $shadow;
+}

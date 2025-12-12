@@ -56,11 +56,13 @@ export class AdminDashboardComponent implements OnInit {
     }
 
     this.loading.set(true);
+    this.errorMessage.set('');
     this.requestsService
       .approveRequest(request.id, doctorId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
+          this.errorMessage.set('');
           this.loadRequests(request.id);
           this.refreshAssignments();
         },
@@ -76,11 +78,13 @@ export class AdminDashboardComponent implements OnInit {
     if (!request?.id) return;
 
     this.loading.set(true);
+    this.errorMessage.set('');
     this.requestsService
       .rejectRequest(request.id)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
+          this.errorMessage.set('');
           this.loadRequests();
           this.refreshAssignments();
         },

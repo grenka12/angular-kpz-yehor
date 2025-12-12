@@ -14,8 +14,8 @@ import { DoctorDto } from '../../../core/interfaces/doctor.dto';
 export class RequestDetailsComponent implements OnChanges {
   @Input() request: RequestDto | null = null;
   @Input() doctors: DoctorDto[] = [];
-  @Output() approve = new EventEmitter<number | null>();
-  @Output() reject = new EventEmitter<void>();
+  @Output() approve = new EventEmitter<{ doctorId: number | null; requestId: number | null }>();
+  @Output() reject = new EventEmitter<number | null>();
 
   selectedDoctorId: number | null = null;
 
@@ -30,11 +30,14 @@ export class RequestDetailsComponent implements OnChanges {
       requestId: this.request?.id,
       selectedDoctorId: this.selectedDoctorId
     });
-    this.approve.emit(this.selectedDoctorId);
+    this.approve.emit({
+      doctorId: this.selectedDoctorId,
+      requestId: this.request?.id ?? null
+    });
   }
 
   onReject() {
     console.log('Reject clicked', { requestId: this.request?.id });
-    this.reject.emit();
+    this.reject.emit(this.request?.id ?? null);
   }
 }

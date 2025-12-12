@@ -46,9 +46,19 @@ export class AdminDashboardComponent implements OnInit {
     this.selectedRequest.set(request);
   }
 
-  onApprove(doctorId: number | null) {
-    const request = this.selectedRequest();
-    if (!request?.id) {
+  onApprove(event: { doctorId: number | null; requestId: number | null }) {
+    const incomingId = event?.requestId ?? null;
+    const doctorId = event?.doctorId ?? null;
+    const requestId = incomingId ?? this.selectedRequest()?.id ?? null;
+    const request = requestId
+      ? this.requests().find((r) => r.id === requestId) || this.selectedRequest()
+      : this.selectedRequest();
+
+    if (request) {
+      this.selectedRequest.set(request);
+    }
+
+    if (!requestId) {
       const message = 'Спочатку оберіть заявку перед підтвердженням.';
       console.warn(message, { request });
       this.errorMessage.set(message);
@@ -61,17 +71,17 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
-    console.log('Approving request', { requestId: request.id, doctorId });
+    console.log('Approving request', { requestId, doctorId });
     this.loading.set(true);
     this.errorMessage.set('');
     this.requestsService
-      .approveRequest(request.id, doctorId)
+      .approveRequest(requestId, doctorId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {
           console.log('Request approved, refreshing lists');
           this.errorMessage.set('');
-          this.loadRequests(request.id);
+          this.loadRequests(requestId);
           this.refreshAssignments();
         },
         error: (err) => {
@@ -81,20 +91,28 @@ export class AdminDashboardComponent implements OnInit {
       });
   }
 
-  onReject() {
-    const request = this.selectedRequest();
-    if (!request?.id) {
+  onReject(requestIdFromChild?: number | null) {
+    const requestId = requestIdFromChild ?? this.selectedRequest()?.id ?? null;
+    const request = requestId
+      ? this.requests().find((r) => r.id === requestId) || this.selectedRequest()
+      : this.selectedRequest();
+
+    if (request) {
+      this.selectedRequest.set(request);
+    }
+
+    if (!requestId) {
       const message = 'Спочатку оберіть заявку перед відхиленням.';
       console.warn(message, { request });
       this.errorMessage.set(message);
       return;
     }
 
-    console.log('Rejecting request', { requestId: request.id });
+    console.log('Rejecting request', { requestId });
     this.loading.set(true);
     this.errorMessage.set('');
     this.requestsService
-      .rejectRequest(request.id)
+      .rejectRequest(requestId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: () => {

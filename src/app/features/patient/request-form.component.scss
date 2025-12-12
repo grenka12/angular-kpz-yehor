@@ -1,0 +1,138 @@
+.patient-form {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: var(--card-color);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.header p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+button.primary,
+button.ghost {
+  padding: 0.65rem 1.2rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+button.primary {
+  background: var(--primary-500);
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(44, 105, 255, 0.25);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+label {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+input,
+textarea,
+select {
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-primary);
+}
+
+textarea {
+  resize: vertical;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+.doctors-list {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.5rem;
+  max-height: 200px;
+  overflow: auto;
+  background: var(--surface-color);
+}
+
+.doctor {
+  padding: 0.5rem;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.doctor:hover {
+  background: var(--primary-50);
+}
+
+.doctor label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.doctor__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: 700;
+}
+
+.specialty {
+  color: var(--text-secondary);
+}
+
+.muted {
+  color: var(--text-secondary);
+  text-align: center;
+}

@@ -1,0 +1,47 @@
+<div class="details" *ngIf="request; else placeholder">
+  <header class="details__header">
+    <div>
+      <h3>Details</h3>
+      <p class="muted">Review and assign a doctor</p>
+    </div>
+  </header>
+
+  <div class="details__body">
+    <div class="row">
+      <span class="label">Patient</span>
+      <span class="value">{{ request.patientLastName }} {{ request.patientFirstName }}</span>
+    </div>
+    <div class="row">
+      <span class="label">Case</span>
+      <span class="value">{{ request.caseDescription }}</span>
+    </div>
+    <div class="row">
+      <span class="label">Priority</span>
+      <span class="value">
+        <span class="tag" [class.urgent]="request.priority === 'Urgent'">{{ request.priority || 'Normal' }}</span>
+      </span>
+    </div>
+    <div class="row">
+      <span class="label">Status</span>
+      <span class="value">{{ request.status || 'Pending' }}</span>
+    </div>
+    <div class="row">
+      <span class="label">Doctor</span>
+      <select [(ngModel)]="selectedDoctorId">
+        <option [ngValue]="undefined">Not assigned</option>
+        <option *ngFor="let doctor of doctors" [ngValue]="doctor.id">
+          {{ doctor.lastName }} {{ doctor.firstName }} — {{ doctor.specialty }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <footer class="details__footer">
+    <button class="ghost" type="button" (click)="reject()" [disabled]="saving">Reject</button>
+    <button class="primary" type="button" (click)="approve()" [disabled]="saving">Approve</button>
+  </footer>
+</div>
+
+<ng-template #placeholder>
+  <div class="placeholder">Select a request to view details.</div>
+</ng-template>

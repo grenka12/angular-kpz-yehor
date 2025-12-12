@@ -1,0 +1,60 @@
+.landing {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 96px);
+}
+
+.landing__card {
+  background: var(--card-color);
+  border-radius: 16px;
+  padding: 3rem 3.5rem;
+  box-shadow: 0 12px 30px rgba(16, 24, 40, 0.08);
+  text-align: center;
+  max-width: 640px;
+  width: 100%;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+}
+
+.subtitle {
+  margin: 0 0 2rem;
+  color: var(--text-secondary);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+button {
+  min-width: 160px;
+  padding: 0.85rem 1.2rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--primary-500);
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(44, 105, 255, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s;
+}
+
+button.secondary {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  box-shadow: none;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 30px rgba(44, 105, 255, 0.35);
+}
+
+button.secondary:hover {
+  background: var(--primary-200);
+}

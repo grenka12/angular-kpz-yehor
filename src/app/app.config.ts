@@ -1,32 +1,17 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-
-// модулі
-import { CustomRoutingModule } from './custom-routing/custom-routing-module';
-import { CustomRoutingRoutingModule } from './custom-routing/custom-routing-routing-module';
-
-// інтерсептор
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { customInterceptor } from './custom-interceptor';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule, HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import { AppRoutingModule } from './app-routing.module';
+import { HttpAuthInterceptor } from './core/interceptors/http-auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
-    provideClientHydration(withEventReplay()),
-
-    // Підключаємо модулі
-    importProvidersFrom(CustomRoutingModule),
-    importProvidersFrom(CustomRoutingRoutingModule),
-
-    // Інтерсептор
+    importProvidersFrom(BrowserModule, HttpClientModule, AppRoutingModule),
+    provideHttpClient(withInterceptorsFromDi(), withFetch()),
     {
       provide: HTTP_INTERCEPTORS,
-      useValue: customInterceptor,
+      useClass: HttpAuthInterceptor,
       multi: true
     }
-
   ]
 };

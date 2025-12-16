@@ -40,8 +40,9 @@ export class AssignmentsTableComponent {
       return 'N/A';
     }
 
-    const date = request.requestedDate || '';
-    const time = request.requestedTime || '';
+    const dateTime = this.splitDateTime(request.requestedDate);
+    const time = request.requestedTime || dateTime.time;
+    const date = dateTime.date;
 
     if (!date && !time) {
       return 'Not specified';
@@ -62,5 +63,16 @@ export class AssignmentsTableComponent {
 
   private findRequestById(requestId: number) {
     return this.requests.find((r) => r.id === requestId);
+  }
+
+  private splitDateTime(value?: string) {
+    if (!value) {
+      return { date: '', time: '' };
+    }
+
+    const [datePart, timePart] = value.split('T');
+    const cleanTime = timePart ? timePart.replace('Z', '').slice(0, 5) : '';
+
+    return { date: datePart || value, time: cleanTime };
   }
 }

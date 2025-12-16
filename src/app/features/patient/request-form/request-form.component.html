@@ -5,7 +5,7 @@
   </header>
 
   <form [formGroup]="form" (ngSubmit)="submit()">
-    <div class="grid">
+    <div class="grid names-grid">
       <label>
         <span>First Name</span>
         <input type="text" formControlName="patientFirstName" placeholder="Enter first name" />
@@ -30,10 +30,15 @@
       <textarea formControlName="caseDescription" rows="3" placeholder="Describe the case"></textarea>
     </label>
 
-    <div class="grid">
+    <div class="grid schedule-grid">
       <label>
         <span>Requested Date</span>
-        <input type="date" formControlName="requestedDate" />
+        <input
+          type="date"
+          class="no-year"
+          formControlName="requestedDate"
+          min="2025-01-01"
+          max="2025-12-31" />
       </label>
       <label>
         <span>Requested Time</span>
@@ -47,14 +52,6 @@
         </select>
       </label>
     </div>
-
-    <label>
-      <span>Available Doctors</span>
-      <select multiple formControlName="availableDoctors">
-        <option *ngFor="let doctor of doctors()" [value]="doctor.id">{{ doctor.lastName }} {{ doctor.firstName }}</option>
-      </select>
-      <small class="muted">Hold Ctrl/Cmd to select multiple doctors.</small>
-    </label>
 
     <div class="actions">
       <button type="submit" [disabled]="loading()">Submit Request</button>

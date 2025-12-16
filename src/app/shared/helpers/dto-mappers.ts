@@ -13,10 +13,26 @@ export const toCreateRequestDto = (formValue: RequestFormValue): CreateRequestDt
   patientPatronymic: formValue.patientPatronymic,
   address: formValue.address,
   caseDescription: formValue.caseDescription,
-  requestedDate: formValue.requestedDate,
+  requestedDate: normalizeRequestedDate(formValue.requestedDate, formValue.requestedTime),
   requestedTime: formValue.requestedTime,
   priority: formValue.priority ?? "Normal"
 });
+
+
+const normalizeRequestedDate = (dateValue: string, timeValue: string) => {
+  if (!dateValue) {
+    return "";
+  }
+
+  const [hours = "00", minutes = "00"] = (timeValue || "").split(":");
+  const [datePart] = dateValue.split("T");
+  const [, month = "01", day = "01"] = (datePart || "").split("-");
+
+  const normalizedMonth = month.padStart(2, "0");
+  const normalizedDay = (day?.split("T")[0] || "01").padStart(2, "0");
+
+  return `2025-${normalizedMonth}-${normalizedDay}T${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}:00.000Z`;
+};
 
 
 export const toDoctorDto = (payload: DoctorDto): DoctorDto => ({ ...payload });

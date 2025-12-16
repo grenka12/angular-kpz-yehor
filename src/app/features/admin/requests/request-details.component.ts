@@ -40,11 +40,18 @@ export class RequestDetailsComponent {
   }
 
   get requestedDateTime(): string {
-    if (!this.request?.requestedDate && !this.request?.requestedTime) {
+    if (!this.request) {
       return 'Not scheduled';
     }
 
-    return [this.request?.requestedDate, this.request?.requestedTime].filter(Boolean).join(' ');
+    const dateTime = this.splitDateTime(this.request.requestedDate);
+    const time = this.request.requestedTime || dateTime.time;
+
+    if (!dateTime.date && !time) {
+      return 'Not scheduled';
+    }
+
+    return [dateTime.date, time].filter(Boolean).join(' ');
   }
 
   onDoctorChange(value: string) {
@@ -64,5 +71,16 @@ export class RequestDetailsComponent {
   onReject() {
     if (!this.request || !this.isPending) return;
     this.reject.emit(this.request.id);
+  }
+
+  private splitDateTime(value?: string) {
+    if (!value) {
+      return { date: '', time: '' };
+    }
+
+    const [datePart, timePart] = value.split('T');
+    const cleanTime = timePart ? timePart.replace('Z', '').slice(0, 5) : '';
+
+    return { date: datePart || value, time: cleanTime };
   }
 }

@@ -2,13 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { finalize, tap } from 'rxjs';
-import { DoctorsService } from '../../../core/services/doctors.service';
+import { tap } from 'rxjs';
 import { RequestsService } from '../../../core/services/requests.service';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { RequestFormValue } from '../../../shared/interfaces/request-form-value.interface';
 import { toCreateRequestDto } from '../../../shared/helpers/dto-mappers';
-import { DoctorDto } from '../../../core/interfaces/doctor.dto';
 
 @Component({
   selector: 'app-request-form',
@@ -28,23 +26,19 @@ export class RequestFormComponent implements OnInit {
     caseDescription: ['', Validators.required],
     requestedDate: ['', Validators.required],
     requestedTime: ['', Validators.required],
-    priority: ['Normal' as 'Normal' | 'Urgent', Validators.required],
-    availableDoctors: this.fb.control<number[]>([])
+    priority: ['Normal' as 'Normal' | 'Urgent', Validators.required]
   });
 
-  doctors = signal<DoctorDto[]>([]);
   loading = signal(false);
   submitted = signal(false);
   errorMessage = signal('');
   readonly title = computed(() => (this.submitted() ? 'Request submitted' : 'Patient request'));
 
-  constructor(
-    private readonly requestsService: RequestsService,
-    private readonly doctorsService: DoctorsService
-  ) {}
+  constructor(private readonly requestsService: RequestsService) {}
 
   ngOnInit() {
-    this.fetchDoctors();
+    this.setInitialDate();
+    this.enforce2025Year();
   }
 
   submit() {
@@ -54,8 +48,10 @@ export class RequestFormComponent implements OnInit {
     }
 
     const raw = this.form.getRawValue() as RequestFormValue;
-    raw.availableDoctors = raw.availableDoctors?.map(Number);
-    const payload = toCreateRequestDto(raw);
+    const payload = toCreateRequestDto({
+      ...raw,
+      requestedDate: this.combineDateTime(raw.requestedDate, raw.requestedTime)
+    });
     this.loading.set(true);
     this.errorMessage.set('');
 
@@ -77,17 +73,42 @@ export class RequestFormComponent implements OnInit {
       .subscribe();
   }
 
-  private fetchDoctors() {
-    this.loading.set(true);
-    this.doctorsService
-      .getDoctors()
-      .pipe(
-        tap({
-          next: (doctors) => this.doctors.set(doctors),
-          error: () => this.errorMessage.set('Unable to load doctors')
-        }),
-        finalize(() => this.loading.set(false))
-      )
-      .subscribe();
+  private setInitialDate() {
+    const today = new Date();
+    const month = `${today.getMonth() + 1}`.padStart(2, '0');
+    const day = `${today.getDate()}`.padStart(2, '0');
+    const normalized = `2025-${month}-${day}`;
+
+    this.form.patchValue({ requestedDate: normalized }, { emitEvent: false });
+  }
+
+  private enforce2025Year() {
+    this.form.controls.requestedDate.valueChanges.subscribe((value) => {
+      if (!value) return;
+
+      const normalized = this.to2025DateString(value);
+      if (normalized !== value) {
+        this.form.patchValue({ requestedDate: normalized }, { emitEvent: false });
+      }
+    });
+  }
+
+  private combineDateTime(dateValue: string, timeValue: string) {
+    const normalizedDate = this.to2025DateString(dateValue);
+    const [hours = '00', minutes = '00'] = (timeValue || '').split(':');
+
+    return `${normalizedDate}T${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00.000Z`;
+  }
+
+  private to2025DateString(value: string) {
+    if (!value) return '';
+
+    const [datePart] = value.split('T');
+    const [, month = '01', day = '01'] = (datePart || '').split('-');
+
+    const normalizedMonth = month.padStart(2, '0');
+    const normalizedDay = (day?.split('T')[0] || '01').padStart(2, '0');
+
+    return `2025-${normalizedMonth}-${normalizedDay}`;
   }
 }

@@ -17,7 +17,7 @@
       <td>{{ request.caseDescription }}</td>
       <td><span class="tag" [class.urgent]="request.priority === 'Urgent'">{{ request.priority || 'Normal' }}</span></td>
       <td>{{ request.status || 'Pending' }}</td>
-      <td>{{ request.requestedDate }} {{ request.requestedTime }}</td>
+      <td>{{ formatRequestedSlot(request) }}</td>
     </tr>
   </tbody>
 </table>

@@ -7,5 +7,4 @@ export interface RequestFormValue {
   requestedDate: string;
   requestedTime: string;
   priority: 'Normal' | 'Urgent';
-  availableDoctors?: number[];
 }

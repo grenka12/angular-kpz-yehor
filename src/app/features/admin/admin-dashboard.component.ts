@@ -54,30 +54,32 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   onSelectRequest(req: RequestDto) {
-  console.log("Selected request →", req);
-  this.selectedRequest.set(req);
-}
+    console.log('Selected request →', req);
+    this.selectedRequest.set(req);
+  }
 
   onApprove(event: { doctorId: number; requestId: number }) {
 
-  if (!event.requestId) {
-    this.errorMessage.set("No requestId passed!");
-    return;
-  }
+    if (!event.requestId) {
+      this.errorMessage.set('No requestId passed!');
+      return;
+    }
 
-  if (!event.doctorId) {
-    this.errorMessage.set("No doctor selected!");
-    return;
-  }
+    if (!event.doctorId) {
+      this.errorMessage.set('No doctor selected!');
+      return;
+    }
 
-  console.log("APPROVE → requestId =", event.requestId, " doctorId =", event.doctorId);
+    console.log('APPROVE → requestId =', event.requestId, ' doctorId =', event.doctorId);
 
-  this.requestsService.approveRequest(event.requestId, event.doctorId)
-    .subscribe({
-      next: () => this.loadRequests(event.requestId),
-      error: (err) => this.errorMessage.set(err.error?.message || "Error approving")
+    this.requestsService.approveRequest(event.requestId, event.doctorId).subscribe({
+      next: () => {
+        this.loadRequests(event.requestId);
+        this.refreshAssignments();
+      },
+      error: (err) => this.errorMessage.set(err.error?.message || 'Error approving')
     });
-}
+  }
 
 
   onReject(requestId: number) {
@@ -105,7 +107,7 @@ export class AdminDashboardComponent implements OnInit {
     this.requestsService.getRequests()
       .subscribe({
         next: (requests) => {
-          this.requests.set(requests);
+          this.requests.set(this.sortRequestsByStatus(requests));
           if (selectedId) {
             const found = requests.find((r) => r.id === selectedId) || null;
             this.selectedRequest.set(found);
@@ -134,7 +136,7 @@ export class AdminDashboardComponent implements OnInit {
     this.requestsService.getRequests()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (requests) => this.requests.set(requests),
+        next: (requests) => this.requests.set(this.sortRequestsByStatus(requests)),
         error: (err) => {
           this.errorMessage.set(err?.error?.message || 'Failed to load requests');
         }
@@ -157,12 +159,33 @@ export class AdminDashboardComponent implements OnInit {
 
         
 
-    this.assignmentsService.getAssignments()
+      this.assignmentsService.getAssignments()
       .subscribe({
         next: (data) => this.assignments.set(data),
         error: (err) => {
           this.errorMessage.set(err?.error?.message || 'Failed to load assignments');
         }
       });
+  }
+
+  private sortRequestsByStatus(requests: RequestDto[]) {
+    const order = ['Pending', 'pending', 'Approved', 'approved', 'Rejected', 'rejected'];
+
+    return [...requests].sort((a, b) => {
+      const aStatus = a.status || 'Pending';
+      const bStatus = b.status || 'Pending';
+
+      const aIndex = order.indexOf(aStatus);
+      const bIndex = order.indexOf(bStatus);
+
+      const normalizedA = aIndex === -1 ? order.length : aIndex;
+      const normalizedB = bIndex === -1 ? order.length : bIndex;
+
+      if (normalizedA !== normalizedB) {
+        return normalizedA - normalizedB;
+      }
+
+      return (a.id || 0) - (b.id || 0);
+    });
   }
 }

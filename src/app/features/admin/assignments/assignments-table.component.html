@@ -3,9 +3,9 @@
     <tr>
       <th>Doctor</th>
       <th>Patient</th>
+      <th>Address</th>
       <th>Requested time</th>
       <th>Request</th>
-      <th>Request Id</th>
     </tr>
   </thead>
   <tbody>
@@ -15,9 +15,9 @@
       </td>
       <td>
         <div class="cell-main">{{ resolvePatientName(assignment.requestId) }}</div>
-        <div class="cell-sub" *ngIf="resolveRequestAddress(assignment.requestId)">
-          {{ resolveRequestAddress(assignment.requestId) }}
-        </div>
+      </td>
+      <td>
+        <div class="cell-main">{{ resolveRequestAddress(assignment.requestId) || '—' }}</div>
       </td>
       <td>
         <div class="cell-main">{{ resolveRequestedSlot(assignment.requestId) }}</div>
@@ -25,7 +25,6 @@
       <td>
         <div class="cell-main">{{ resolveRequestCase(assignment.requestId) }}</div>
       </td>
-      <td class="muted">#{{ assignment.requestId }}</td>
     </tr>
   </tbody>
 </table>

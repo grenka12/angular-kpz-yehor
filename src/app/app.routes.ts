@@ -14,6 +14,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/admin-dashboard.component').then((m) => m.AdminDashboardComponent)
   },
   {
+    path: 'custom',
+    loadChildren: () =>
+      import('./custom-routing/custom-routing-module')
+        .then(m => m.CustomRoutingModule)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

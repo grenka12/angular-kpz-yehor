@@ -4,6 +4,11 @@
 .details {
   display: grid;
   gap: 1rem;
+
+  p {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
 }
 
 .grid {

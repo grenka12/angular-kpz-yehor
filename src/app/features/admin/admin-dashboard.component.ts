@@ -108,6 +108,7 @@ export class AdminDashboardComponent implements OnInit {
       .subscribe({
         next: (requests) => {
           this.requests.set(this.sortRequestsByStatus(requests));
+          this.assignments.update((current) => this.sortAssignmentsByRequestTime(current));
           if (selectedId) {
             const found = requests.find((r) => r.id === selectedId) || null;
             this.selectedRequest.set(found);
@@ -122,7 +123,7 @@ export class AdminDashboardComponent implements OnInit {
   private refreshAssignments() {
     this.assignmentsService.getAssignments()
       .subscribe({
-        next: (data) => this.assignments.set(data),
+        next: (data) => this.assignments.set(this.sortAssignmentsByRequestTime(data)),
         error: (err) => {
           this.errorMessage.set(err?.error?.message || 'Unable to reload assignments');
         }
@@ -136,7 +137,10 @@ export class AdminDashboardComponent implements OnInit {
     this.requestsService.getRequests()
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (requests) => this.requests.set(this.sortRequestsByStatus(requests)),
+        next: (requests) => {
+          this.requests.set(this.sortRequestsByStatus(requests));
+          this.assignments.update((current) => this.sortAssignmentsByRequestTime(current));
+        },
         error: (err) => {
           this.errorMessage.set(err?.error?.message || 'Failed to load requests');
         }
@@ -161,7 +165,7 @@ export class AdminDashboardComponent implements OnInit {
 
       this.assignmentsService.getAssignments()
       .subscribe({
-        next: (data) => this.assignments.set(data),
+        next: (data) => this.assignments.set(this.sortAssignmentsByRequestTime(data)),
         error: (err) => {
           this.errorMessage.set(err?.error?.message || 'Failed to load assignments');
         }
@@ -169,23 +173,65 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   private sortRequestsByStatus(requests: RequestDto[]) {
-    const order = ['Pending', 'pending', 'Approved', 'approved', 'Rejected', 'rejected'];
-
     return [...requests].sort((a, b) => {
-      const aStatus = a.status || 'Pending';
-      const bStatus = b.status || 'Pending';
+      const aStatus = (a.status || 'Pending').toLowerCase();
+      const bStatus = (b.status || 'Pending').toLowerCase();
 
-      const aIndex = order.indexOf(aStatus);
-      const bIndex = order.indexOf(bStatus);
-
-      const normalizedA = aIndex === -1 ? order.length : aIndex;
-      const normalizedB = bIndex === -1 ? order.length : bIndex;
-
-      if (normalizedA !== normalizedB) {
-        return normalizedA - normalizedB;
+      if (aStatus !== bStatus) {
+        if (aStatus === 'pending') return -1;
+        if (bStatus === 'pending') return 1;
       }
 
-      return (a.id || 0) - (b.id || 0);
+      const timeDiff = this.getRequestTimestamp(b) - this.getRequestTimestamp(a);
+      if (timeDiff !== 0) {
+        return timeDiff;
+      }
+
+      return (b.id || 0) - (a.id || 0);
     });
+  }
+
+  private sortAssignmentsByRequestTime(assignments: AssignmentDto[]) {
+    return [...assignments].sort((a, b) => {
+      const timeDiff = this.getRequestTimestampById(b.requestId) - this.getRequestTimestampById(a.requestId);
+
+      if (timeDiff !== 0) {
+        return timeDiff;
+      }
+
+      return (b.id || 0) - (a.id || 0);
+    });
+  }
+
+  private getRequestTimestampById(requestId: number) {
+    const request = this.requests().find((r) => r.id === requestId);
+    return this.getRequestTimestamp(request || {});
+  }
+
+  private getRequestTimestamp(request: Partial<RequestDto>) {
+    const date = request.requestedDate;
+    const time = request.requestedTime;
+
+    if (!date && !time) {
+      return 0;
+    }
+
+    if (date && date.includes('T')) {
+      const parsed = Date.parse(date);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    if (date && time) {
+      const parsed = Date.parse(`${date}T${time}`);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    if (date) {
+      const parsed = Date.parse(date);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    const parsed = Date.parse(`1970-01-01T${time}`);
+    return Number.isNaN(parsed) ? 0 : parsed;
   }
 }
